@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Web - Entorno</title>
+    <style>
+        /* Diseño basado en tu captura de pantalla */
+        body {
+            background-color: #7a7a7a; /* Fondo gris general */
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Encabezado y Controles */
+        #top-bar {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            position: relative;
+        }
+
+        #logo-box {
+            background-color: #ff8800;
+            color: black;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 10px 15px;
+            margin-right: 10px;
+        }
+
+        #brand-title {
+            font-weight: 900;
+            font-size: 22px;
+            color: black;
+        }
+
+        #codigo-title {
+            color: #d1d1d1;
+            font-size: 26px;
+            font-weight: bold;
+            margin-left: 50px;
+        }
+
+        .controls {
+            margin-left: auto; /* Empuja los controles a la derecha */
+            display: flex;
+            gap: 10px;
+        }
+
+        button, select {
+            padding: 8px 12px;
+            font-weight: bold;
+            border: 2px solid black;
+            background: #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover { background: #fff; }
+        #btn-run { background: #4caf50; color: white; border-color: #388e3c; }
+        #btn-run:hover { background: #45a049; }
+
+        /* Contenedor Principal dividido en Izquierda y Derecha */
+        #main-workspace {
+            display: flex;
+            flex: 1;
+            padding: 0 20px 20px 20px;
+            gap: 20px;
+            height: calc(100vh - 80px);
+        }
+
+        /* Panel Izquierdo (Código) */
+        #left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #editor {
+            flex: 1;
+            background-color: black;
+            color: #ffffff;
+            font-family: 'Consolas', monospace;
+            font-size: 16px;
+            padding: 15px;
+            border: none;
+            resize: none;
+            outline: none;
+        }
+
+        /* Panel Derecho (Resultado y Consola) */
+        #right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #resultado-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 22px;
+            color: black;
+            margin-bottom: 5px;
+        }
+
+        #visual-output {
+            flex: 1;
+            background-color: white;
+            border: none;
+            width: 100%;
+        }
+
+        #console-bar {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #lbl-consola {
+            margin-right: 10px;
+        }
+
+        #console-output {
+            flex: 1;
+            background-color: #b3b3b3;
+            color: black;
+            height: 30px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            font-family: 'Consolas', monospace;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .error-text { color: #8b0000; }
+    </style>
+</head>
+<body>
+
+    <div id="top-bar">
+        <div id="logo-box">JS</div>
+        <div id="brand-title">JavaScript Web</div>
+        <div id="codigo-title">Codigo JS</div>
+        
+        <div class="controls">
+            <select id="lang-select">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+                <option value="pt">Português</option>
+            </select>
+            <button id="btn-export">Exportar JS</button>
+            <button id="btn-run">Ejecutar</button>
+        </div>
+    </div>
+
+    <div id="main-workspace">
+        <!-- Panel Izquierdo -->
+        <div id="left-panel">
+            <textarea id="editor" spellcheck="false">
+// ¡Bienvenido! Selecciona tu idioma arriba.
+console.log("Sistema iniciado...");
+
+document.body.style.fontFamily = "Arial";
+document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-top: 20%;'>Hola Mundo 3D</h1>";
+</textarea>
+        </div>
+
+        <!-- Panel Derecho -->
+        <div id="right-panel">
+            <div id="resultado-title">RESULTADO</div>
+            <iframe id="visual-output"></iframe>
+            
+            <div id="console-bar">
+                <span id="lbl-consola">Consola virtual</span> <span>></span>
+                <div id="console-output" id="console-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. DICCIONARIO DE IDIOMAS ---
+        const dict = {
+            es: {
+                brand: "JavaScript Web",
+                code: "Codigo JS",
+                exportBtn: "Exportar JS",
+                runBtn: "Ejecutar",
+                result: "RESULTADO",
+                console: "Consola virtual"
+            },
+            en: {
+                brand: "JavaScript Web",
+                code: "JS Code",
+                exportBtn: "Export JS",
+                runBtn: "Run",
+                result: "RESULT",
+                console: "Virtual Console"
+            },
+            pt: {
+                brand: "JavaScript Web",
+                code: "Código JS",
+                exportBtn: "Exportar JS",
+                runBtn: "Executar",
+                result: "RESULTADO",
+                console: "Console Virtual"
+            }
+        };
+
+        // --- 2. REFERENCIAS AL DOM ---
+        const editor = document.getElementById('editor');
+        const visualOutput = document.getElementById('visual-output');
+        const consoleOutput = document.getElementById('console-output');
+        
+        // Botones y Selectores
+        const btnRun = document.getElementById('btn-run');
+        const btnExport = document.getElementById('btn-export');
+        const langSelect = document.getElementById('lang-select');
+
+        // Textos a traducir
+        const lblBrand = document.getElementById('brand-title');
+        const lblCode = document.getElementById('codigo-title');
+        const lblResult = document.getElementById('resultado-title');
+        const lblConsola = document.getElementById('lbl-consola');
+
+        // --- 3. LÓGICA DE TRADUCCIÓN ---
+        langSelect.addEventListener('change', (e) => {
+            const lang = e.target.value;
+            lblBrand.textContent = dict[lang].brand;
+            lblCode.textContent = dict[lang].code;
+            btnExport.textContent = dict[lang].exportBtn;
+            btnRun.textContent = dict[lang].runBtn;
+            lblResult.textContent = dict[lang].result;
+            lblConsola.textContent = dict[lang].console;
+        });
+
+        // --- 4. LÓGICA DE EXPORTACIÓN ---
+        btnExport.addEventListener('click', () => {
+            const code = editor.value;
+            // Crea un archivo virtual blob
+            const blob = new Blob([code], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            
+            // Crea un enlace invisible y lo presiona
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'script.js';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Limpieza
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            consoleOutput.textContent = "Archivo script.js descargado.";
+        });
+
+        // --- 5. PERMITIR TABULADOR EN TEXTAREA ---
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+
+        // --- 6. LÓGICA DE EJECUCIÓN (SANDBOX Y CONSOLA) ---
+        function runCode() {
+            const userCode = editor.value;
+            consoleOutput.textContent = ""; 
+            consoleOutput.className = "";
+
+            const iframeDoc = visualOutput.contentWindow.document;
+            iframeDoc.open();
+            
+            // Script inyectado para interceptar la consola y enviarla a la tira inferior
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head><style>body { margin: 0; }</style></head>
+                <body>
+                    <script>
+                        const originalLog = console.log;
+                        console.log = function(...args) {
+                            window.parent.postMessage({ type: 'log', args: args }, '*');
+                            originalLog.apply(console, args);
+                        };
+
+                        const originalError = console.error;
+                        console.error = function(...args) {
+                            window.parent.postMessage({ type: 'error', args: args }, '*');
+                            originalError.apply(console, args);
+                        };
+
+                        window.onerror = function(message, source, lineno, colno, error) {
+                            window.parent.postMessage({ type: 'error', args: [message + ' (Línea ' + lineno + ')'] }, '*');
+                            return false;
+                        };
+                    <\/script>
+                    <script>
+                        ${userCode}
+                    <\/script>
+                </body>
+                </html>
+            `;
+            
+            iframeDoc.write(htmlContent);
+            iframeDoc.close();
+        }
+
+        // Escucha los mensajes que manda el iframe
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type) {
+                const msg = event.data.args.map(arg => {
+                    if (typeof arg === 'object') return JSON.stringify(arg);
+                    return arg;
+                }).join(' ');
+
+                consoleOutput.textContent = msg;
+                if (event.data.type === 'error') {
+                    consoleOutput.classList.add('error-text');
+                } else {
+                    consoleOutput.classList.remove('error-text');
+                }
+            }
+        });
+
+        // Activar botón de ejecutar
+        btnRun.addEventListener('click', runCode);
+    </script>
+</body>
+</html>
