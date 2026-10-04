@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JS Web - Entorno</title>
     <style>
-        /* Diseño basado en tu captura de pantalla */
         body {
-            background-color: #7a7a7a; /* Fondo gris general */
+            background-color: #7a7a7a;
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             height: 100vh;
@@ -16,7 +15,6 @@
             overflow: hidden;
         }
 
-        /* Encabezado y Controles */
         #top-bar {
             display: flex;
             align-items: center;
@@ -47,7 +45,7 @@
         }
 
         .controls {
-            margin-left: auto; /* Empuja los controles a la derecha */
+            margin-left: auto;
             display: flex;
             gap: 10px;
         }
@@ -65,7 +63,6 @@
         #btn-run { background: #4caf50; color: white; border-color: #388e3c; }
         #btn-run:hover { background: #45a049; }
 
-        /* Contenedor Principal dividido en Izquierda y Derecha */
         #main-workspace {
             display: flex;
             flex: 1;
@@ -74,7 +71,6 @@
             height: calc(100vh - 80px);
         }
 
-        /* Panel Izquierdo (Código) */
         #left-panel {
             flex: 1;
             display: flex;
@@ -93,7 +89,6 @@
             outline: none;
         }
 
-        /* Panel Derecho (Resultado y Consola) */
         #right-panel {
             flex: 1;
             display: flex;
@@ -156,13 +151,13 @@
                 <option value="en">English</option>
                 <option value="pt">Português</option>
             </select>
+            <button id="btn-export-txt">Exportar Codigo JS (TXT)</button>
             <button id="btn-export">Exportar JS</button>
             <button id="btn-run">Ejecutar</button>
         </div>
     </div>
 
     <div id="main-workspace">
-        <!-- Panel Izquierdo -->
         <div id="left-panel">
             <textarea id="editor" spellcheck="false">
 // ¡Bienvenido! Selecciona tu idioma arriba.
@@ -173,7 +168,6 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
 </textarea>
         </div>
 
-        <!-- Panel Derecho -->
         <div id="right-panel">
             <div id="resultado-title">RESULTADO</div>
             <iframe id="visual-output"></iframe>
@@ -191,6 +185,7 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
             es: {
                 brand: "JavaScript Web",
                 code: "Codigo JS",
+                exportTxtBtn: "Exportar Codigo JS (TXT)",
                 exportBtn: "Exportar JS",
                 runBtn: "Ejecutar",
                 result: "RESULTADO",
@@ -199,6 +194,7 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
             en: {
                 brand: "JavaScript Web",
                 code: "JS Code",
+                exportTxtBtn: "Export JS Code (TXT)",
                 exportBtn: "Export JS",
                 runBtn: "Run",
                 result: "RESULT",
@@ -207,6 +203,7 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
             pt: {
                 brand: "JavaScript Web",
                 code: "Código JS",
+                exportTxtBtn: "Exportar Código JS (TXT)",
                 exportBtn: "Exportar JS",
                 runBtn: "Executar",
                 result: "RESULTADO",
@@ -219,12 +216,11 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
         const visualOutput = document.getElementById('visual-output');
         const consoleOutput = document.getElementById('console-output');
         
-        // Botones y Selectores
         const btnRun = document.getElementById('btn-run');
         const btnExport = document.getElementById('btn-export');
+        const btnExportTxt = document.getElementById('btn-export-txt');
         const langSelect = document.getElementById('lang-select');
 
-        // Textos a traducir
         const lblBrand = document.getElementById('brand-title');
         const lblCode = document.getElementById('codigo-title');
         const lblResult = document.getElementById('resultado-title');
@@ -235,30 +231,48 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
             const lang = e.target.value;
             lblBrand.textContent = dict[lang].brand;
             lblCode.textContent = dict[lang].code;
+            btnExportTxt.textContent = dict[lang].exportTxtBtn;
             btnExport.textContent = dict[lang].exportBtn;
             btnRun.textContent = dict[lang].runBtn;
             lblResult.textContent = dict[lang].result;
             lblConsola.textContent = dict[lang].console;
         });
 
-        // --- 4. LÓGICA DE EXPORTACIÓN ---
+        // --- 4. LÓGICA DE EXPORTACIÓN (JS y TXT) ---
+        
+        // Exportar como .js
         btnExport.addEventListener('click', () => {
             const code = editor.value;
-            // Crea un archivo virtual blob
             const blob = new Blob([code], { type: 'text/javascript' });
             const url = URL.createObjectURL(blob);
             
-            // Crea un enlace invisible y lo presiona
             const a = document.createElement('a');
             a.href = url;
             a.download = 'script.js';
             document.body.appendChild(a);
             a.click();
             
-            // Limpieza
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             consoleOutput.textContent = "Archivo script.js descargado.";
+        });
+
+        // Exportar como .txt
+        btnExportTxt.addEventListener('click', () => {
+            const code = editor.value;
+            // Blob en texto plano para asegurar formato TXT
+            const blob = new Blob([code], { type: 'text/plain' }); 
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'codigo.txt';
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            consoleOutput.textContent = "Archivo codigo.txt descargado.";
         });
 
         // --- 5. PERMITIR TABULADOR EN TEXTAREA ---
@@ -281,7 +295,6 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
             const iframeDoc = visualOutput.contentWindow.document;
             iframeDoc.open();
             
-            // Script inyectado para interceptar la consola y enviarla a la tira inferior
             const htmlContent = `
                 <!DOCTYPE html>
                 <html>
@@ -316,7 +329,6 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
             iframeDoc.close();
         }
 
-        // Escucha los mensajes que manda el iframe
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type) {
                 const msg = event.data.args.map(arg => {
@@ -333,7 +345,6 @@ document.body.innerHTML = "<h1 style='color: blue; text-align: center; margin-to
             }
         });
 
-        // Activar botón de ejecutar
         btnRun.addEventListener('click', runCode);
     </script>
 </body>
